@@ -1,0 +1,220 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+#main {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0px;
+    left: 0px;
+}
+
+#grid {
+    position: relative;
+    top: 20vh;
+    left: 10vw;
+    height: calc(60vh - 50px);
+    width: calc(80vw - 50px);
+    background-color: rgb(58, 68, 212);
+    box-shadow: 0px 0px 23px 18px rgba(38, 48, 192, 0.916);
+    display: grid;
+    /*grid-template-columns: calc(25% - 17.5px) calc(25% - 17.5px) calc(25% - 17.5px) calc(25% - 17.5px);*/
+    grid-auto-flow: column;
+    gap: 25px;
+    padding: 25px;
+    border-radius: 5px;
+}
+
+#grid>div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: calc(50% - 12.5px) calc(50% - 12.5px);
+    gap: 25px;
+}
+
+#grid>div>div {
+    position: relative;
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(23, 23, 23);
+    transition: top 150ms ease-in-out, background-color 150ms ease-in-out;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    align-content: normal;
+    gap: 10%;
+}
+
+#grid>div>div:hover {
+    cursor: pointer;
+    top: -5%;
+    background-color: rgba(68, 66, 66, 0.897);
+}
+
+#grid>div>div>.font {
+    transition: color 100ms ease-in-out;
+}
+
+#grid>div>div:hover>.font {
+    color: rgb(240, 240, 240);
+}
+
+.title,.description {
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 16px
+}
+
+.font {
+    font-size: 50px;
+    color: rgb(149, 143, 143);
+}
+
+.title {
+    font-size: 18px
+}
+
+#form {
+    position: relative;
+    padding-top: 2vh;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    top: 20vh;
+    left: 40vw;
+    height: 58vh;
+    width: 16vw;
+    background-color: rgb(58, 68, 212);
+    box-shadow: 0px 0px 23px 18px rgba(38, 48, 192, 0.916);
+    border-radius: 20px;
+    z-index: 2;
+}
+
+#form>form {
+    display: grid;
+    grid-auto-flow: row;
+    gap: 2vh;
+}
+
+#form>form>* {
+    position: relative;
+    width: 100%;
+    font-size: 25px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+#form>form>input[type="text"] {
+    border-bottom: 2px black solid;
+    background-color: transparent;
+    color: white
+}
+
+#form>form>div:has(label,input[type="checkbox"])>input:hover {
+    cursor: pointer;
+}
+
+#form>form>div:has(label,input[type="checkbox"])>label {
+    cursor: pointer;
+}
+
+#form>form>div {
+    color: white;
+    background-color: transparent;
+    font-size: 20px;
+}
+
+.form-font {
+    float: right;
+    font-size: 30px;
+    z-index: 5;
+    transition: color 150ms ease-in-out;
+}
+
+.form-font:hover {
+    cursor: pointer;
+    color: rgb(55, 55, 55);
+}
+
+#form>form>button[type="button"]:hover {
+    color: rgb(169, 169, 169);
+    cursor: pointer;
+}
+
+#settings {
+    position: relative;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    top: 10vh;
+    left: 20vw;
+    height: 76vh;
+    width: 56vw;
+    background-color: rgb(58, 68, 212);
+    box-shadow: 0px 0px 23px 18px rgba(38, 48, 192, 0.916);
+    border-radius: 20px;
+    z-index: 2;
+}
+
+.s-grid {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: normal;
+    align-items: normal;
+    align-content: normal;
+    gap: 25px;
+}
+
+.s-grid>div {
+    display: grid;
+    grid-template-columns: 80% 20%;
+}
+
+.s-grid>div>.text {
+    position: relative;
+    height: 50px;
+    line-height: 50px;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.s-grid>div>.option {
+    position: relative;
+    height: 25px;
+    top: 25%;
+}
+
+.s-grid>div>.option:hover {
+    cursor: pointer;
+}
+
+.save {
+    position: relative;
+    width: 100%;
+    font-size: 25px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    transition: color 150ms ease-in-out;
+}
+
+.save:hover {
+    cursor: pointer;
+    color: rgb(121, 121, 121);
+}

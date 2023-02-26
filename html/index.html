@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="./styles.css">
+        <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+        <title>Scene Creator</title>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript" src="./compress.js"></script>
+        <script type="text/javascript" defer src="./script.js"></script>
+    </head>
+    <body>
+        <container id="main" style="display:none">
+            <div id="grid">
+                <div>
+                    <div id="S_Ped" onclick="ChosenOption(this)">
+                        <i class="font fa-solid fa-user"></i>
+                        <div class="trscl title">spawn_ped</div>
+                        <div class="trscl description">spawn_ped_description</div>
+                    </div>
+                    <div id="M_Ped" onclick="ChosenOption(this)">
+                        <i class="font fa-solid fa-file"></i>
+                        <div class="trscl title">manage_ped</div>
+                        <div class="trscl description">manage_ped_description</div>
+                    </div>
+                </div>
+                <div>
+                    <div id="S_Veh" onclick="ChosenOption(this)">
+                        <i class="font fa-solid fa-car"></i>
+                        <div class="trscl title">spawn_vehicle</div>
+                        <div class="trscl description">spawn_vehicle_description</div>
+                    </div>
+                    <div id="M_Veh" onclick="ChosenOption(this)">
+                        <i class="font fa-solid fa-truck"></i>
+                        <div class="trscl title">manage_vehicle</div>
+                        <div class="trscl description">manage_vehicle_description</div>
+                    </div>
+                </div>
+                <div>
+                    <div id="S_Obj" onclick="ChosenOption(this)">
+                        <i class="font fa-solid fa-box"></i>
+                        <div class="trscl title">spawn_object</div>
+                        <div class="trscl description">spawn_object_description</div>
+                    </div>
+                    <div id="M_Obj" onclick="ChosenOption(this)">
+                        <i class="font fa-solid fa-layer-group"></i>
+                        <div class="trscl title">manage_object</div>
+                        <div class="trscl description">manage_object_description</div>
+                    </div>
+                </div>
+                <div>
+                    <div id="A_Misc" onclick="ChosenOption(this)">
+                        <i class="font fa-sharp fa-solid fa-circle-up"></i>
+                        <div class="trscl title">add_entity</div>
+                        <div class="trscl description">add_entity_description</div>
+                    </div>
+                    <div id="A_Sett" onclick="ChosenOption(this)">
+                        <i class="font fa-sharp fa-solid fa-gear"></i>
+                        <div class="trscl title">settings</div>
+                        <div class="trscl description">settings_description</div>
+                    </div>
+                </div>
+            </div>
+            <div id="form" style="display: none">
+                <i onclick="AbortForm()" class="form-font fa-solid fa-xmark"></i>
+                <form>
+                    <label class="trscl">form_title</label>
+                    <input type="text" id="model" placeholder="model">
+                    <div><input type="checkbox" id="network"><label for="network"> Networked</label></div>
+                    <button type="button" onclick="SubmitForm(this)">Accept (Enter)</button>
+                </form>
+            </div>
+            <div id="settings" style="display: none">
+                <div class="s-grid">
+                    <div>
+                        <div class="trscl text">all_networked</div>
+                        <input title="Set_input" placeholder="" class="option" type="checkbox" value="networked">
+                    </div>
+                    <div>
+                        <div class="trscl text">move_all_by_offset</div>
+                        <input title="Set_input" placeholder="" class="option" type="checkbox" value="select">
+                    </div>
+                    <div>
+                        <div class="trscl text">auto_save</div>
+                        <input title="Set_input" placeholder="" class="option" type="checkbox" value="change">
+                    </div>
+                    <div>
+                        <div class="trscl text">compress_data</div>
+                        <input title="Set_input" placeholder="" class="option" type="checkbox" value="save">
+                    </div>
+                </div>
+                <div class="trscl save" onclick="SaveSettings(this);">setting_save</div>
+            </div>
+        </container>
+    </body>
+</html>
