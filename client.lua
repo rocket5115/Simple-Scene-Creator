@@ -1,7 +1,13 @@
 CreateThread(function()
 	local allow = false
+	local SceneId = nil
 	RegisterNetEvent('Scene_creator:allow', function(p)
 		allow = p
+	end)
+	CreateThread(function()
+		if Config.AutoEnable then
+			TriggerServerEvent('Scene_creator:requestAdmin')
+		end
 	end)
 	local sin,cos,abs,pi = math.sin,math.cos,math.abs,math.pi
 	local hp = (pi/180)
@@ -125,6 +131,8 @@ CreateThread(function()
 		isOn = false
 	end)
 
+	local template = {}
+
 	CreateThread(function()
 		while true do
 			if not allow then
@@ -158,6 +166,7 @@ CreateThread(function()
 
 	local curEnt = nil
 	local mMode_default = false
+	local spd = 0.05
 
 	CreateThread(function()
 		local rotation = 0.0
@@ -181,6 +190,9 @@ CreateThread(function()
 				DisableControlAction(1,178,true)
 				DisableControlAction(1,243,true)
 				if not set then
+					SendDebugData('speed',spd)
+					local is = NetworkGetEntityIsNetworked(curEnt)
+					SendDebugData('networked','<span '..(is and 'class="green">Yes'or'class="red">No')..'</span>')
 					FreezeEntityPosition(curEnt,true)
 					entType = GetEntityType(curEnt)
 					if entType ~= 1 then
@@ -191,33 +203,41 @@ CreateThread(function()
 					end
 					if entType ~= 3 then
 						rotation = GetEntityHeading(curEnt)
+						SendDebugData('rot',rotation)
 					else
 						local rot = GetEntityRotation(curEnt)
 						roll = rot.y
 						pitch = rot.x
 						rotation = rot.z
+						SendDebugData('rot',rotation)
 					end
+					SendDebugData('model',GetEntityModel(curEnt))
+
 					set=true
 				end
 				if IsDisabledControlPressed(1,44) then
-					rotation=rotation+0.5
+					rotation=rotation+spd
 					if rotation>360.0 then
 						rotation=0.0
 					end
 					if entType == 3 then
 						SetEntityRotation(curEnt, pitch, roll, rotation, false, true)
+						SendDebugData('rot',GetEntityRotation(curEnt))
 					else
 						SetEntityHeading(curEnt, rotation)
+						SendDebugData('rot',GetEntityHeading(curEnt))
 					end
 				elseif IsDisabledControlPressed(1,46) then
-					rotation=rotation-0.5
+					rotation=rotation-spd
 					if rotation<0.0 then
 						rotation=360.0
 					end
 					if entType == 3 then
 						SetEntityRotation(curEnt, pitch, roll, rotation, false, true)
+						SendDebugData('rot',GetEntityRotation(curEnt))
 					else
 						SetEntityHeading(curEnt, rotation)
+						SendDebugData('rot',GetEntityHeading(curEnt))
 					end
 				end
 				if IsDisabledControlJustPressed(1,178) then
@@ -243,31 +263,40 @@ CreateThread(function()
 					DisableControlAction(1,20,true)
 					DisableControlAction(1,73,true)
 					if IsDisabledControlPressed(1,20) then
-						pitch=pitch+0.5
+						pitch=pitch+spd
 						if pitch>180.0 then
 							pitch=-180.0
 						end
 						SetEntityRotation(curEnt,pitch,roll,rotation,false,true)
 					elseif IsDisabledControlPressed(1,73) then
-						pitch=pitch-0.5
+						pitch=pitch-spd
 						if pitch<-180.0 then
 							pitch=180.0
 						end
 						SetEntityRotation(curEnt,pitch,roll,rotation,false,true)
 					end
 					if IsDisabledControlPressed(1,30) then
-						roll=roll+0.5
+						roll=roll+spd
 						if roll>180.0 then
 							roll=-180.0
 						end
 						SetEntityRotation(curEnt,pitch,roll,rotation,false,true)
 					elseif IsDisabledControlPressed(1,34) then
-						roll=roll-0.5
+						roll=roll-spd
 						if roll<-180.0 then
 							roll=180.0
 						end
 						SetEntityRotation(curEnt,pitch,roll,rotation,false,true)
 					end
+				end
+				if IsControlPressed(1, 96) then
+					spd=spd+0.05
+					SendDebugData('speed',spd)
+				elseif IsControlPressed(1, 97) then
+					if spd-0.05>0 then
+						spd=spd-0.05
+					end
+					SendDebugData('speed',spd)
 				end
 				if mMode then
 					DisableControlAction(1,172,true)
@@ -279,25 +308,31 @@ CreateThread(function()
 					DrawXYZGraphFromEntity(curEnt)
 					TaskStandStill(PlayerPedId(),100)
 					if IsDisabledControlPressed(1,172) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.005, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, spd, 0.0)
 						SetEntityCoordsNoOffset(curEnt, offset.x, offset.y, offset.z, false, false, false)
+						SendDebugData('pos',offset)
 					elseif IsDisabledControlPressed(1,173) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, -0.005, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, -spd, 0.0)
 						SetEntityCoordsNoOffset(curEnt, offset.x, offset.y, offset.z, false, false, false)
+						SendDebugData('pos',offset)
 					end
 					if IsDisabledControlPressed(1,174) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.005, 0.0, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, spd, 0.0, 0.0)
 						SetEntityCoordsNoOffset(curEnt, offset.x, offset.y, offset.z, false, false, false)
+						SendDebugData('pos',offset)
 					elseif IsDisabledControlPressed(1,175) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, -0.005, 0.0, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, -spd, 0.0, 0.0)
 						SetEntityCoordsNoOffset(curEnt, offset.x, offset.y, offset.z, false, false, false)
+						SendDebugData('pos',offset)
 					end
 					if IsDisabledControlPressed(1,32) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, 0.005)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, spd)
 						SetEntityCoordsNoOffset(curEnt, offset.x, offset.y, offset.z, false, false, false)
+						SendDebugData('pos',offset)
 					elseif IsDisabledControlPressed(1,33) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, -0.005)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, -spd)
 						SetEntityCoordsNoOffset(curEnt, offset.x, offset.y, offset.z, false, false, false)
+						SendDebugData('pos',offset)
 					end
 				else
 					local hit, coords, entity = RaycastGameplayCamera(1000.0)
@@ -306,8 +341,10 @@ CreateThread(function()
 							SetEntityCoords(curEnt, coords.x, coords.y, coords.z, false, false, false, true)
 							if entType == 3 then
 								SetEntityRotation(curEnt, pitch, roll, rotation, false, true)
+								SendDebugData('rot',GetEntityRotation(curEnt))
 							else
 								SetEntityHeading(curEnt, rotation)
+								SendDebugData('rot',GetEntityHeading(curEnt))
 							end
 						end
 					end
@@ -372,30 +409,27 @@ CreateThread(function()
 	end)
 
 	RegisterNUICallback('manage', function(data)
-		if data.data == 'M_Ped' then
-			curMan = 'Peds'
-		elseif data.data == 'M_Veh' then
-			curMan = 'Vehs'
-		elseif data.data == 'M_Obj' then
-			curMan = 'Objs'
-		end
+		curMan = true
 	end)
 
 	CreateThread(function()
 		local lastEnt = nil
+		local lastType = nil
 		while true do
 			Wait(10)
 			if not curMan or not allow then
 				lastEnt = nil
+				lastType = nil
 				Wait(200)
 			else
 				local hit, coords, entity = RaycastGameplayCamera(1000.0)
 				if hit then
-					local ent = (curMan=='Peds'and Peds[entity]or curMan=='Vehs'and Vehicles[entity]or curMan=='Objs'and Objects[entity])
+					local ent = (Peds[entity]or Vehicles[entity]or Objects[entity])
 					if ent and not lastEnt and DoesEntityExist(entity) then
 						if not lastEnt then
+							lastType=GetEntityType(ent)
 							SetEntityFocus(ent,true,true)
-							if curMan=='Peds'then
+							if lastType==1 then
 								SetEntityAlpha(ent,200)
 							else
 								SetEntityDrawOutline(ent, true)
@@ -405,7 +439,7 @@ CreateThread(function()
 					elseif lastEnt and not lastEnt == ent then
 						if lastEnt then
 							SetEntityFocus(lastEnt,false,true)
-							if curMan=='Peds'then
+							if lastType==1 then
 								ResetEntityAlpha(lastEnt)
 							else
 								SetEntityDrawOutline(lastEnt, false)
@@ -415,7 +449,7 @@ CreateThread(function()
 					else
 						if lastEnt ~= ent then
 							SetEntityFocus(lastEnt,false,true)
-							if curMan=='Peds'then
+							if lastType==1 then
 								ResetEntityAlpha(lastEnt)
 							else
 								SetEntityDrawOutline(lastEnt, false)
@@ -427,7 +461,7 @@ CreateThread(function()
 				if IsControlJustPressed(1,191)then
 					if lastEnt then
 						SetEntityFocus(lastEnt,false,true)
-						if curMan=='Peds'then
+						if lastType==1 then
 							ResetEntityAlpha(lastEnt)
 						else
 							SetEntityDrawOutline(ent, false)
@@ -590,6 +624,7 @@ CreateThread(function()
 	end)
 
 	RegisterCommand('loadscene', function(_,args)
+		SceneId=args[1]
 		TriggerServerEvent('Scene_creator:load_session',args[1])
 	end)
 
@@ -601,9 +636,12 @@ CreateThread(function()
 				return
 			else
 				local first = data[1]
+				first.pos = nil
 				local offsets = {{offset=vector3(0,0,0),data=first,ent=0}}
 				for i=2,#data do
-					offsets[i]={offset=data[i].pos-first.pos,data=data[i],ent=0}
+					local offset = data[i].pos-first.pos
+					data[i].pos=nil
+					offsets[i]={offset=offset,data=data[i],ent=0}
 				end
 				TriggerServerEvent('Scene_creator:save_template',json.encode(offsets))
 			end
@@ -612,31 +650,37 @@ CreateThread(function()
 
 	RegisterCommand('loadtemplate', function(_,args)
 		if args[1] then
+			SceneId=args[1]
 			TriggerServerEvent('Scene_creator:load_template',args[1])
 		end
 	end)
 
-	local template = {}
 	local mtemp = false
 
 	RegisterNetEvent('Scene_creator:load_template', function(data)
 		crt=true
+		SendDebugData('id',SceneId)
 		local data = json.decode(data)
+		local first = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, 5.0)
 		for i=1,#data do
+			data[i].data.offset = vector3(data[i].offset.x,data[i].offset.y,data[i].offset.z)
+			if i~=1 then
+				data[i].data.pos=first+data[i].data.offset
+			end
 			if data[i].data.type=='Ped'then
-				local ped = Citizen.CreatePed(data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, data[i].data.heading, data[i].data.model, (data[i].data.networked~=nil and data[i].data.networked~=false))
+				local ped = Citizen.CreatePed(data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, data[i].data.heading, data[i].data.model, (data[i].data.network~=nil and data[i].data.network~=false))
 				SetEntityCoordsNoOffset(ped,data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, false, false, false)
 				Peds[ped]=ped
 				data[i].ent = ped
 				FreezeEntityPosition(ped,true)
 			elseif data[i].data.type=='Veh'then
-				local veh = Citizen.CreateVehicle(data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, data[i].data.heading, data[i].data.model, (data[i].data.networked~=nil and data[i].data.networked~=false))
+				local veh = Citizen.CreateVehicle(data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, data[i].data.heading, data[i].data.model, (data[i].data.network~=nil and data[i].data.network~=false))
 				SetEntityCoordsNoOffset(veh,data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, false, false, false)
 				Vehicles[veh]=veh
 				data[i].ent = veh
 				FreezeEntityPosition(veh,true)
 			elseif data[i].data.type=='Obj'then
-				local obj = Citizen.CreateObject(data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, data[i].data.model, (data[i].data.networked~=nil and data[i].data.networked~=false))
+				local obj = Citizen.CreateObject(data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, data[i].data.model, (data[i].data.network~=nil and data[i].data.network~=false))
 				SetEntityCoordsNoOffset(obj,data[i].data.pos.x, data[i].data.pos.y, data[i].data.pos.z, false, false, false)
 				Objects[obj]=obj
 				data[i].ent = obj
@@ -689,24 +733,24 @@ CreateThread(function()
 					DrawXYZGraphFromEntity(curEnt)
 					TaskStandStill(PlayerPedId(),100)
 					if IsDisabledControlPressed(1,172) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.005, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, spd, 0.0)
 						MoveTemplate(offset)
 					elseif IsDisabledControlPressed(1,173) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, -0.005, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, -spd, 0.0)
 						MoveTemplate(offset)
 					end
 					if IsDisabledControlPressed(1,174) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.005, 0.0, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, spd, 0.0, 0.0)
 						MoveTemplate(offset)
 					elseif IsDisabledControlPressed(1,175) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, -0.005, 0.0, 0.0)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, -spd, 0.0, 0.0)
 						MoveTemplate(offset)
 					end
 					if IsDisabledControlPressed(1,32) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, 0.005)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, spd)
 						MoveTemplate(offset)
 					elseif IsDisabledControlPressed(1,33) then
-						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, -0.005)
+						local offset = GetOffsetFromEntityInWorldCoords(curEnt, 0.0, 0.0, -spd)
 						MoveTemplate(offset)
 					end
 				else
@@ -752,17 +796,17 @@ CreateThread(function()
 			for k,v in pairs(data)do
 				if tonumber(k)then
 					if v.type=='Ped'then
-						local ped = Citizen.CreatePed(v.pos.x, v.pos.y, v.pos.z, v.heading, v.model, (v.networked~=nil and v.networked~=false))
+						local ped = Citizen.CreatePed(v.pos.x, v.pos.y, v.pos.z, v.heading, v.model, (v.network~=nil and v.network~=false))
 						SetEntityCoordsNoOffset(ped,v.pos.x, v.pos.y, v.pos.z, false, false, false)
 						Peds[ped]=ped
 						FreezeEntityPosition(ped,true)
 					elseif v.type=='Veh'then
-						local veh = Citizen.CreateVehicle(v.pos.x, v.pos.y, v.pos.z, v.heading, v.model, (v.networked~=nil and v.networked~=false))
+						local veh = Citizen.CreateVehicle(v.pos.x, v.pos.y, v.pos.z, v.heading, v.model, (v.network~=nil and v.network~=false))
 						SetEntityCoordsNoOffset(veh,v.pos.x, v.pos.y, v.pos.z, false, false, false)
 						Vehicles[veh]=veh
 						FreezeEntityPosition(veh,true)
 					elseif v.type=='Obj'then
-						local obj = Citizen.CreateObject(v.pos.x, v.pos.y, v.pos.z, v.model, (v.networked~=nil and v.networked~=false))
+						local obj = Citizen.CreateObject(v.pos.x, v.pos.y, v.pos.z, v.model, (v.network~=nil and v.network~=false))
 						SetEntityCoordsNoOffset(obj,v.pos.x, v.pos.y, v.pos.z, false, false, false)
 						Objects[obj]=obj
 						SetEntityRotation(obj,v.rot.x,v.rot.y,v.rot.z,false,true)
@@ -773,17 +817,17 @@ CreateThread(function()
 		else
 			for i=1,#data do
 				if data[i].type=='Ped'then
-					local ped = Citizen.CreatePed(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].networked~=nil and data[i].networked~=false))
+					local ped = Citizen.CreatePed(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].network~=nil and data[i].network~=false))
 					SetEntityCoordsNoOffset(ped,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
 					Peds[ped]=ped
 					FreezeEntityPosition(ped,true)
 				elseif data[i].type=='Veh'then
-					local veh = Citizen.CreateVehicle(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].networked~=nil and data[i].networked~=false))
+					local veh = Citizen.CreateVehicle(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].network~=nil and data[i].network~=false))
 					SetEntityCoordsNoOffset(veh,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
 					Vehicles[veh]=veh
 					FreezeEntityPosition(veh,true)
 				elseif data[i].type=='Obj'then
-					local obj = Citizen.CreateObject(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].model, (data[i].networked~=nil and data[i].networked~=false))
+					local obj = Citizen.CreateObject(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].model, (data[i].network~=nil and data[i].network~=false))
 					SetEntityCoordsNoOffset(obj,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
 					Objects[obj]=obj
 					SetEntityRotation(obj,data[i].rot.x,data[i].rot.y,data[i].rot.z,false,true)
@@ -795,6 +839,7 @@ CreateThread(function()
 
 	RegisterNetEvent('Scene_creator:load_session', function(data)
 		if data then
+			SendDebugData('id',SceneId)
 			crt=true
 			if json.decode(data)then
 				LoadScene(json.decode(data))
@@ -807,16 +852,21 @@ CreateThread(function()
 	RegisterNetEvent('Scene_creator:saveScene', function()
 		if crt and Config.SaveDefault then
 			TriggerServerEvent('Scene_creator:save_session',GetCurrentData(Config.SaveSpace),Config.SaveSpace)
+			Wait(10)
+			SendNotification('Saved Scene With '..#DataFunc()..' Entities')
 		end
 	end)
 
 	RegisterNetEvent('Scene_creator:createdscene', function(name)
 		name=name:gsub('.txt',''):gsub('UNSC','')
 		print("Scene ID:",name)
+		SceneId=name
+		SendDebugData('id',SceneId)
 	end)
 
 	RegisterCommand('scenedeleteall', function()
 		if crt then
+			DebugDeleteAll()
 			for k,v in pairs(Peds)do
 				Peds[k] = nil
 				DeleteNetworkedEntity(v)
@@ -832,6 +882,21 @@ CreateThread(function()
 			crt=false
 			template={}
 			TriggerServerEvent('Scene_creator:unload')
+		else
+			DebugDeleteAll()
+			for k,v in pairs(Peds)do
+				Peds[k] = nil
+				DeleteNetworkedEntity(v)
+			end
+			for k,v in pairs(Vehicles)do
+				Vehicles[k] = nil
+				DeleteNetworkedEntity(v)
+			end
+			for k,v in pairs(Objects)do
+				Objects[k] = nil
+				DeleteNetworkedEntity(v)
+			end
+			template={}
 		end
 	end)
 end)

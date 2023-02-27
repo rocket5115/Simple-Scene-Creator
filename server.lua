@@ -3,8 +3,18 @@ local allow = {}
 local resource = GetCurrentResourceName()
 
 RegisterCommand('allowscene', function(source)
-    allow[source] = not allow[source]
+    if Config.ScenesOnlyByAdmin then
+        allow[source] = Config.AdminAllow(source)
+    else
+        allow[source] = not allow[source]
+    end
     TriggerClientEvent('Scene_creator:allow',source,allow[source])
+end)
+
+RegisterNetEvent('Scene_creator:requestAdmin', function()
+    local src = source
+    allow[src] = Config.AdminAllow(src)
+    TriggerClientEvent('Scene_creator:allow',src,allow[src])
 end)
 
 RegisterNetEvent('Scene_creator:create_session', function(arg)

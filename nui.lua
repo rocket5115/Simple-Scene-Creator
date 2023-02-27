@@ -56,7 +56,7 @@ end)
 
 local nuion = false
 
-function display(p1,p2,c)
+function display(p1,p2)
     nuion=p1
     if p2 then
         SetNuiFocus(false,false)
@@ -83,3 +83,37 @@ end
 RegisterNUICallback('nuioff', function()
     display(false,false)
 end)
+
+function ShowNotification(data)
+    SendNUIMessage({
+        type='addnotif',
+        data="<div>"..data.."</div>"
+    })
+end
+
+function SendDebugData(name,data)
+    data=data or''
+    data=tostring(data)
+    if data~=''then
+        data=(data:find('span')and data or'<span>'..data..'</span>')
+    end
+    SendNUIMessage({
+        type='debug',
+        name=name,
+        data=data,
+        show=data~=''
+    })
+end
+
+function DebugDeleteAll()
+    SendNUIMessage({
+        type='debugdelete'
+    })
+end
+
+function SendNotification(data)
+    SendNUIMessage({
+        type='addnotif',
+        data=data
+    })
+end

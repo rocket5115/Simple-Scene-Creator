@@ -25,6 +25,7 @@ ui_page 'html/index.html'
 files {
     'html/index.html',
     'html/styles.css',
+    'html/template.css',
     'html/compress.js',
     'html/script.js'
 }

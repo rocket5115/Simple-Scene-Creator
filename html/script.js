@@ -9,6 +9,12 @@ const fChild = form.querySelector('form').querySelector('button');
 const settings = document.getElementById('settings');
 var Translation = {};
 
+const template = document.getElementById('template');
+
+const notifcontainer = document.getElementById('notifications');
+const notifications = document.getElementById('notif');
+const debug = document.getElementById('debug');
+
 window.addEventListener('message', function (event) {
     let data = event.data;
     if(data.type==='show'){
@@ -24,6 +30,32 @@ window.addEventListener('message', function (event) {
         post('compress',{data:Citizen.Compress(JSON.stringify(data.data))});
     }else if(data.type==='decompress'){
         post('decompress',{data:Citizen.Decompress(data.data)});
+    }else if(data.type==='addnotif'){
+        notifications.innerHTML = data.data;
+        setTimeout(()=>{
+            if(notifications.innerHTML==data.data){
+                notifications.innerHTML="";
+            };
+        },3000);
+    }else if(data.type==='debug'){
+        let doc = document.getElementById(data.name);
+        if(doc){
+            if(data.show){
+                doc.innerHTML = data.data
+                doc.parentNode.style.display = 'block';
+            } else {
+                doc.innerHTML = "";
+                doc.parentNode.style.display = 'none';
+            };
+        };
+    }else if(data.type==='debugdelete'){
+        debug.querySelectorAll('div').forEach(elem=>{
+            elem.style.display="none";
+            let sp = elem.querySelector('span');
+            if(sp){
+                sp.innerHTML='';
+            };
+        });
     };
 });
 
@@ -38,17 +70,20 @@ function TrySubmitForm() {
 
 window.addEventListener('keydown', function (event) {
     if(event.key==='Escape'){
-        if(!LastOption&&!Settings){
+        if(!LastOption&&!Settings&&template.style.display=='none'){
             post('nuioff');
-        } else if(LastOption){
+        } else if(LastOption) {
             grid.style.display = 'grid';
             form.style.display = 'none';
             LastOption=null;
-        } else {
+        } else if(Settings) {
             grid.style.display = 'grid';
             settings.style.display = 'none';
             Settings=null;
-        };
+        } else {
+            template.style.display='none';
+            grid.style.display='grid';
+        }
     } else if(event.key==='Enter'){
         TrySubmitForm();
     };
@@ -93,6 +128,11 @@ function ChosenOption(e) {
         } else {
             post('addent');
             post('nuioff');
+        };
+    } else if(start==='T_'){
+        if(e.id==='T_Change'){
+            grid.style.display = 'none';
+            template.style.display = 'grid';
         };
     };
 };

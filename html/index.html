@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link type="text/css" rel="stylesheet" href="./styles.css">
+        <link type="text/css" rel="stylesheet" href="./template.css">
         <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
         <title>Scene Creator</title>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -12,7 +13,28 @@
         <script type="text/javascript" defer src="./script.js"></script>
     </head>
     <body>
+        <container id="notifications">
+            <div id="debug">
+                <div>Model: <span id="model"></span></div>
+                <div>Pos: <span id="pos"></span></div>
+                <div>Rot: <span id="rot"></span></div>
+                <div>Speed: <span id="speed"></span></div>
+                <div>Networked: <span id="networked"></span></div>
+                <div>Scene Id: <span id="id"></span></div>
+            </div>
+            <div id="notif"></div>
+        </container>
         <container id="main" style="display:none">
+            <div id="template" style="display:none">
+                <div>
+                    <div>
+                        <button type="button">Set Everything As Networked</button>
+                    </div>
+                    <div>
+                        <button type="button">Set Everything As Local</button>
+                    </div>
+                </div>
+            </div>
             <div id="grid">
                 <div>
                     <div id="S_Ped" onclick="ChosenOption(this)">
@@ -20,10 +42,10 @@
                         <div class="trscl title">spawn_ped</div>
                         <div class="trscl description">spawn_ped_description</div>
                     </div>
-                    <div id="M_Ped" onclick="ChosenOption(this)">
-                        <i class="font fa-solid fa-file"></i>
-                        <div class="trscl title">manage_ped</div>
-                        <div class="trscl description">manage_ped_description</div>
+                    <div id="S_Obj" onclick="ChosenOption(this)">
+                        <i class="font fa-solid fa-box"></i>
+                        <div class="trscl title">spawn_object</div>
+                        <div class="trscl description">spawn_object_description</div>
                     </div>
                 </div>
                 <div>
@@ -32,22 +54,10 @@
                         <div class="trscl title">spawn_vehicle</div>
                         <div class="trscl description">spawn_vehicle_description</div>
                     </div>
-                    <div id="M_Veh" onclick="ChosenOption(this)">
-                        <i class="font fa-solid fa-truck"></i>
-                        <div class="trscl title">manage_vehicle</div>
-                        <div class="trscl description">manage_vehicle_description</div>
-                    </div>
-                </div>
-                <div>
-                    <div id="S_Obj" onclick="ChosenOption(this)">
-                        <i class="font fa-solid fa-box"></i>
-                        <div class="trscl title">spawn_object</div>
-                        <div class="trscl description">spawn_object_description</div>
-                    </div>
-                    <div id="M_Obj" onclick="ChosenOption(this)">
+                    <div id="M_Ent" onclick="ChosenOption(this)">
                         <i class="font fa-solid fa-layer-group"></i>
-                        <div class="trscl title">manage_object</div>
-                        <div class="trscl description">manage_object_description</div>
+                        <div class="trscl title">manage_entities</div>
+                        <div class="trscl description">manage_entities_description</div>
                     </div>
                 </div>
                 <div>
@@ -62,6 +72,18 @@
                         <div class="trscl description">settings_description</div>
                     </div>
                 </div>
+                <!--div>
+                    <div id="T_Change" onclick="ChosenOption(this)">
+                        <i class="font fa-sharp fa-solid fa-circle-up"></i>
+                        <div class="trscl title">temp_manage</div>
+                        <div class="trscl description">add_entity_description</div>
+                    </div>
+                    <div id="T_Manage" onclick="ChosenOption(this)">
+                        <i class="font fa-sharp fa-solid fa-circle-up"></i>
+                        <div class="trscl title">add_entity</div>
+                        <div class="trscl description">add_entity_description</div>
+                    </div>
+                </div-->
             </div>
             <div id="form" style="display: none">
                 <i onclick="AbortForm()" class="form-font fa-solid fa-xmark"></i>
