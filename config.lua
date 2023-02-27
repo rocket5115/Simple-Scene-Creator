@@ -1,7 +1,7 @@
 Config = {}
 Config.Language = "en"
 Config.ScenesOnlyByAdmin = true
-Config.AutoEnable = false
+Config.AutoEnable = true
 Config.Groups = {
     'god','admin','mod','superadmin','_dev','best','owner'
 }
