@@ -1,8 +1,8 @@
 Config = {}
 Config.Language = "en"
-Config.ScenesOnlyByAdmin = true
-Config.AutoEnable = true
-Config.Groups = {
+Config.ScenesOnlyByAdmin = true --Allow /allowscene to admins
+Config.AutoEnable = true --Auto check for option above
+Config.Groups = { -- Groups which can manage This Menu
     'god','admin','mod','superadmin','_dev','best','owner'
 }
 Config.AdminAllow = function(source)
