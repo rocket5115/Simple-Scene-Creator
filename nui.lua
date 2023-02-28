@@ -71,6 +71,8 @@ function display(p1,p2)
     })
 end
 
+
+
 function RegisterNUIListener(name,cb)
     registeredcbs[name]=registeredcbs[name]or{}
     registeredcbs[name][#registeredcbs[name]+1]=cb

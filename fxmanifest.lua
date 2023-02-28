@@ -12,11 +12,12 @@ client_scripts {
     'nui.lua',
     'translation.lua',
     'translations/*.lua',
-    --'camera.lua',
     'client.lua'
 }
 
 server_scripts {
+    'serverconfig.lua',
+    'admin.lua',
     'server.lua'
 }
 

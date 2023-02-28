@@ -1,10 +1,12 @@
 CreateThread(function()
 	local allow = false
 	local SceneId = nil
+	local defaultScope = false
 	RegisterNetEvent('Scene_creator:allow', function(p)
 		allow = p
 	end)
 	CreateThread(function()
+		Wait(500)
 		if Config.AutoEnable then
 			TriggerServerEvent('Scene_creator:requestAdmin')
 		end
@@ -23,6 +25,8 @@ CreateThread(function()
 	local Peds = {}
 	local Vehicles = {}
 	local Objects = {}
+
+	local EntitySetAs = {}
 
 	local function PrepareModel(model,err)
 		return(((type(model)=='string'and model~='')and GetHashKey(model)or type(model)=='number'and model)or err)
@@ -193,6 +197,7 @@ CreateThread(function()
 					SendDebugData('speed',spd)
 					local is = NetworkGetEntityIsNetworked(curEnt)
 					SendDebugData('networked','<span '..(is and 'class="green">Yes'or'class="red">No')..'</span>')
+					SendDebugData('network', '<span '..(EntitySetAs[curEnt] and 'class="green">Yes'or'class="red">No')..'</span>')
 					FreezeEntityPosition(curEnt,true)
 					entType = GetEntityType(curEnt)
 					if entType ~= 1 then
@@ -392,16 +397,19 @@ CreateThread(function()
 		if data.data == 'S_Ped' then
 			local coords = GetEntityCoords(PlayerPedId())
 			local ped = Citizen.CreatePed(coords.x, coords.y, coords.z+5.0, 0.0, IsModelAPed(GetHashKey(data.model))and data.model, data.network)
+			SetEntityScope(defaultScope,ped)
 			SaveMoveableEntity(ped)
 			RegisterEntityAsMoveable(ped, true)
 		elseif data.data == 'S_Veh' then
 			local coords = GetEntityCoords(PlayerPedId())
 			local veh = Citizen.CreateVehicle(coords.x, coords.y, coords.z+5.0, 0.0, IsModelInCdimage(GetHashKey(data.model))and data.model, data.network)
+			SetEntityScope(defaultScope,veh)
 			SaveMoveableEntity(veh)
 			RegisterEntityAsMoveable(veh, true)
 		elseif data.data == 'S_Obj' then
 			local coords = GetEntityCoords(PlayerPedId())
 			local obj = Citizen.CreateObject(coords.x, coords.y, coords.z+5.0, IsModelValid(GetHashKey(data.model))and data.model, data.network)
+			SetEntityScope(defaultScope,obj)
 			SaveMoveableEntity(obj)
 			RegisterEntityAsMoveable(obj, true)
 		end
@@ -517,6 +525,7 @@ CreateThread(function()
 					end
 					if IsControlJustPressed(1,191)then
 						if lastEnt then
+							SetEntityScope(defaultScope,lastEnt)
 							TriggerEvent('Scene_creator:saveScene')
 							if NetworkGetEntityIsNetworked(lastEnt) then
 								RequestNetworkControl(lastEnt)
@@ -552,30 +561,48 @@ CreateThread(function()
 	local function DataFunc()
 		local retval = {}
 		for k,v in pairs(Peds)do
+			local net = false
+			if EntitySetAs[v]~=nil then
+				net = EntitySetAs[v]
+			else
+				net = NetworkGetEntityIsNetworked(v)
+			end
 			retval[#retval+1] = {
 				type = 'Ped',
 				pos = GetEntityCoords(v),
 				model = GetEntityModel(v),
 				heading = GetEntityHeading(v),
-				network = NetworkGetEntityIsNetworked(v)
+				network = net
 			}
 		end
 		for k,v in pairs(Vehicles)do
+			local net = false
+			if EntitySetAs[v]~=nil then
+				net = EntitySetAs[v]
+			else
+				net = NetworkGetEntityIsNetworked(v)
+			end
 			retval[#retval+1] = {
 				type = 'Veh',
 				pos = GetEntityCoords(v),
 				model = GetEntityModel(v),
 				heading = GetEntityHeading(v),
-				network = NetworkGetEntityIsNetworked(v)
+				network = net
 			}
 		end
 		for k,v in pairs(Objects)do
+			local net = false
+			if EntitySetAs[v]~=nil then
+				net = EntitySetAs[v]
+			else
+				net = NetworkGetEntityIsNetworked(v)
+			end
 			retval[#retval+1] = {
 				type = 'Obj',
 				pos = GetEntityCoords(v),
 				model = GetEntityModel(v),
 				rot = GetEntityRotation(v),
-				network = NetworkGetEntityIsNetworked(v)
+				network = net
 			}
 		end
 		return retval
@@ -768,6 +795,37 @@ CreateThread(function()
 		end
 	end)
 
+	function SetEntityScope(scope,ent,p)
+		if ent then
+			EntitySetAs[ent]=scope
+		elseif not p then
+			for k,v in pairs(Peds)do
+				EntitySetAs[v] = scope
+			end
+			for k,v in pairs(Vehicles)do
+				EntitySetAs[v] = scope
+			end
+			for k,v in pairs(Objects)do
+				EntitySetAs[v] = scope
+			end
+		end
+	end
+
+	RegisterNUICallback('TempSelected', function(data)
+		if data.id == 'set_network' then
+			SetEntityScope(true)
+			defaultScope=true
+		elseif data.id == 'set_local' then
+			SetEntityScope(false)
+			defaultScope=false
+		elseif data.id == 'set_network_c' then
+			SetEntityScope(true,curEnt,true)
+		elseif data.id == 'set_local_c' then
+			SetEntityScope(false,curEnt,true)
+		end
+		SendDebugData('network', '<span '..(EntitySetAs[curEnt] and 'class="green">Yes'or'class="red">No')..'</span>')
+	end)
+
 	local awt = {}
 
 	RegisterNUICallback('decompress', function(data)
@@ -898,5 +956,6 @@ CreateThread(function()
 			end
 			template={}
 		end
+		EntitySetAs={}
 	end)
 end)

@@ -59,6 +59,7 @@ window.addEventListener('message', function (event) {
     };
 });
 
+
 let LastOption;
 let Settings;
 
@@ -157,4 +158,8 @@ function SaveSettings(e) {
     Settings=null;
     post('UpdateSettings', Setting_data);
     post('SaveProject')
+};
+
+function TempClicked(e) {
+    post('TempSelected',{id:e.id});
 };

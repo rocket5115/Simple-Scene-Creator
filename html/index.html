@@ -19,7 +19,8 @@
                 <div>Pos: <span id="pos"></span></div>
                 <div>Rot: <span id="rot"></span></div>
                 <div>Speed: <span id="speed"></span></div>
-                <div>Networked: <span id="networked"></span></div>
+                <div>Networked(Current): <span id="networked"></span></div>
+                <div>Networked(Project): <span id="network"></span></div>
                 <div>Scene Id: <span id="id"></span></div>
             </div>
             <div id="notif"></div>
@@ -28,10 +29,18 @@
             <div id="template" style="display:none">
                 <div>
                     <div>
-                        <button type="button">Set Everything As Networked</button>
+                        <button id="set_network" type="button" onclick="TempClicked(this)">Set Everything As Networked</button>
                     </div>
                     <div>
-                        <button type="button">Set Everything As Local</button>
+                        <button id="set_local" type="button" onclick="TempClicked(this)">Set Everything As Local</button>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <button id="set_network_c" type="button" onclick="TempClicked(this)">Set Current Entity As Networked</button>
+                    </div>
+                    <div>
+                        <button id="set_local_c" type="button" onclick="TempClicked(this)">Set Current Entity As Local</button>
                     </div>
                 </div>
             </div>
@@ -72,18 +81,13 @@
                         <div class="trscl description">settings_description</div>
                     </div>
                 </div>
-                <!--div>
+                <div>
                     <div id="T_Change" onclick="ChosenOption(this)">
                         <i class="font fa-sharp fa-solid fa-circle-up"></i>
                         <div class="trscl title">temp_manage</div>
-                        <div class="trscl description">add_entity_description</div>
+                        <div class="trscl description">temp_manage_description</div>
                     </div>
-                    <div id="T_Manage" onclick="ChosenOption(this)">
-                        <i class="font fa-sharp fa-solid fa-circle-up"></i>
-                        <div class="trscl title">add_entity</div>
-                        <div class="trscl description">add_entity_description</div>
-                    </div>
-                </div-->
+                </div>
             </div>
             <div id="form" style="display: none">
                 <i onclick="AbortForm()" class="form-font fa-solid fa-xmark"></i>
