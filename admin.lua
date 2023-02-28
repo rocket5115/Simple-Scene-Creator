@@ -1,6 +1,7 @@
 local identifiers = {
-    --'steam:xxx', 'xxx'
-    ':'
+    --'steam:xxx',
+    --'xxx'
+    --'steam:110000xxx'
 }
 
 local groups = {
@@ -34,8 +35,10 @@ function Admin(source)
         end
         for _,identifier in ipairs(GetPlayerIdentifiers(source))do
             for i=1,#identifiers do
-                if identifier:find(identifiers[i]) then
-                    return true
+                if identifiers[i] and tostring(identifiers[i])~='' then
+                    if identifier:find(identifiers[i]) then
+                        return true
+                    end
                 end
             end
         end

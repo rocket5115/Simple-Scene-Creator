@@ -14,6 +14,7 @@ RegisterNetEvent('Scene_creator:requestAdmin', function()
     else
         allow[src]=not allow[src]
     end
+    print(Admin(src))
     TriggerClientEvent('Scene_creator:allow',src,allow[src])
 end)
 
