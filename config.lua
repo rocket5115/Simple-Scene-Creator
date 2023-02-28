@@ -1,7 +1,7 @@
 Config = {}
 Config.Language = "en"
 Config.ScenesOnlyByAdmin = true --Allow /allowscene to admins
-Config.AutoEnable = true --Auto check for option above
+Config.AutoEnable = false --Auto check for option above
 
 --- Controlled By NUI
 Config.SaveDefault = false --Save Any Major Change in physical JSON format
