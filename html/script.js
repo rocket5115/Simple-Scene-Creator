@@ -214,7 +214,7 @@ RegisterMessage('admin', function(data){
             <button class="more" onclick="SeeMore(this)" type="button">More
                 <div style="display:none" class="see-more">
                     <div><label for="bucket">Dimension:</label><input class="input" name="bucket" type="number" min="0" max="100"></div>
-                    <div onclick="SubmitForm(this)">Save</div>
+                    <div onclick="SubmitAdminForm(this)">Save</div>
                 </div>
             </button>
         </div>`;
@@ -245,7 +245,7 @@ function SeeMore(e) {
     };
 };
 
-function SubmitForm(e) {
+function SubmitAdminForm(e) {
     if(isopen){
         isopen.style.display = 'none';
         setTimeout(()=>{
