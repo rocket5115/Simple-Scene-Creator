@@ -1,6 +1,16 @@
 local files = {}
 local allow = {}
 local resource = GetCurrentResourceName()
+function scandir(directory)
+    local i, t = 0, {}
+    local pfile = io.popen('dir "'..directory..'" /b')
+    for filename in pfile:lines() do
+        i = i + 1
+        t[i] = filename
+    end
+    pfile:close()
+    return t
+end
 
 RegisterCommand('allowscene', function(source)
     allow[source] = Admin(source)
@@ -19,6 +29,10 @@ end)
 
 RegisterNetEvent('Scene_creator:create_session', function(arg)
     local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
     if files[src]or not allow[src] then
         return
     else
@@ -31,6 +45,10 @@ end)
 
 RegisterNetEvent('Scene_creator:save_session', function(data,compressed)
     local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
     if not files[src]or not allow[src] then
         return
     else
@@ -40,6 +58,10 @@ end)
 
 RegisterNetEvent('Scene_creator:load_session', function(id)
     local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
     if not allow[src] then
         return
     end
@@ -54,6 +76,10 @@ end)
 
 RegisterNetEvent('Scene_creator:unload', function()
     local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
     if not allow[src] then
         return
     end
@@ -64,6 +90,10 @@ end)
 
 RegisterNetEvent('Scene_creator:save_template', function(data)
     local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
     if not allow[src] then
         return
     end
@@ -75,6 +105,10 @@ end)
 
 RegisterNetEvent('Scene_creator:load_template', function(id)
     local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
     if not allow[src] then
         return
     end
@@ -154,6 +188,7 @@ function LoadSceneBucket(id)
                 end
             end
         end
+        local ents = 0
         for k,v in pairs(data)do
             if tonumber(k)then
                 if v.type=='Ped'then
@@ -172,17 +207,21 @@ function LoadSceneBucket(id)
                     FreezeEntityPosition(obj,true)
                     loadedScenes[id][obj]=obj
                 end
+                ents=ents+1
             end
         end
-        print('^2Loaded Scene: ^7'..id)
+        print('^2Loaded Scene: ^7'..id..' ^2With '..ents..' Entities!^7')
     end
 end
 
 function DeleteScene(id)
     if loadedScenes[id] then
         for k,v in pairs(loadedScenes[id]) do
-            DeleteEntity(v)
+            if DoesEntityExist(v) then
+                DeleteEntity(v)
+            end
         end
+        loadedScenes[id]=nil
     else
         local res = LoadResourceFile(resource,'./projects/UNSC'..id..'.txt')
         if not res then
@@ -248,7 +287,11 @@ function SetSceneBucket(scene,id)
         id = tonumber(id)
         scenebuckets[id]=id
         for k,v in pairs(loadedScenes[scene])do
-            SetEntityRoutingBucket(v,id)
+            if DoesEntityExist(v) then
+                SetEntityRoutingBucket(v,id)
+            else
+                loadedScenes[scene][k]=nil
+            end
         end
     end
 end
@@ -258,5 +301,169 @@ CreateThread(function()
         PermanentScenes[i].bucket=PermanentScenes[i].bucket or 0
         LoadSceneBucket(PermanentScenes[i].name)
         SetSceneBucket(PermanentScenes[i].name,PermanentScenes[i].bucket)
+    end
+end)
+
+RegisterNetEvent('Scene_creator:loadFiles', function(is)
+    local src = source
+    if not Admin(src) then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
+    if is then
+        TriggerClientEvent('Scene_creator:loadFiles', src, scandir(GetResourcePath(resource)..'/projects'), is)
+    else
+        local files = scandir(GetResourcePath(resource)..'/projects')
+        local retval = {}
+        for i=1,#files do
+            if files[i]:find('UNSC')then
+                local n = files[i]:gsub('UNSC','')
+                n=n:gsub('.txt','')
+                retval[#retval+1]={name=n,temp=files[i]:find('TEMP')}
+            end
+        end
+        TriggerClientEvent('Scene_creator:loadFiles', src, retval, is)
+    end
+end)
+
+local function SendChatError(src,msg,color)
+    TriggerClientEvent('chat:addMessage', src, {
+        color = (color or{255,0,0}),
+        multiline = true,
+        args = {'Scenes Creator', msg}
+    })
+end
+
+RegisterNetEvent('Scene_creator:manageFile', function(cmd,file)
+    local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
+    if cmd == 'remove_file' then
+        if not HasFullPerms(src) then
+            SendChatError(src,'~r~You Do Not have Proper Permissions!')
+            return
+        end
+        local name = file:gsub('UNSC','')
+        name=name:gsub('.txt','')
+        if loadedScenes[name] then
+            SendChatError(src,'Scene from file: ~r~'..file..' ~w~Is Currently Loaded!')
+        end
+        for k,v in pairs(files)do
+            if v==file then
+                SendChatError(src,'Scene from file: ~r~'..file..' ~w~Is Currently Loaded!')
+                CancelEvent()
+                return
+            end
+        end
+        os.remove(GetResourcePath(resource)..'/projects/'..file)
+        TriggerClientEvent('Scene_creator:loadFiles', src, scandir(GetResourcePath(resource)..'/projects'), true)
+        SendChatError(src,'Removed File: ~g~'..file,{0,255,0})
+    elseif cmd == 'see_content' then
+        local file = LoadResourceFile(resource,'./projects/'..file)
+        if file then
+            local data = json.decode(file)
+            if not data then
+                SendChatError(src,'~r~File Compressed')
+            else
+                local summary = {
+                    Ped = 0,
+                    Veh = 0,
+                    Obj = 0,
+                    Ent = 0
+                }
+                for k,v in pairs(data)do
+                    if tonumber(k)then
+                        summary[v.type]=summary[v.type]+1
+                        summary.Ent = summary.Ent+1
+                    end
+                end
+                TriggerClientEvent('Scene_creator:manageFile', src, summary)
+            end
+        else
+            SendChatError(src,'~r~File Not Found')
+        end
+    end
+end)
+
+local function SearchScenes(id)
+    for _,v in pairs(files)do
+        if v:find(id)then
+            return true
+        end
+    end
+    for k in pairs(loadedScenes)do
+        if k:find(id)then
+            return true
+        end
+    end
+    return false
+end
+
+RegisterNetEvent('Scene_creator:manageScene', function(cmd,file)
+    local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
+    if cmd=='load_scene' then
+        local is = SearchScenes(file)
+        if is then
+            SendChatError(src,'~r~Scene Is Already Loaded!')
+            return
+        else
+            LoadSceneBucket(file)
+        end
+    elseif cmd=='go_to' then
+        local exists = false
+        for k,v in ipairs(scandir(GetResourcePath(resource)..'/projects'))do
+            if v:find(file)then
+                exists = v
+                break
+            end
+        end
+        if not exists then
+            SendChatError(src,'~r~File Does Not Exist!')
+            return
+        end
+        local file = LoadResourceFile(resource,'./projects/'..exists)
+        local data = json.decode(file)
+        if not data then
+            SendChatError(src,'~r~File Compressed')
+            return
+        end
+        local first_place = (data[1]or data["1"])
+        if not first_place then
+            SendChatError(src,'~r~Scene Is Empty!')
+            return
+        end
+        SetEntityCoords(GetPlayerPed(src),first_place.pos.x, first_place.pos.y, first_place.pos.z+2.0,false,false)
+    elseif cmd=='unload_scene' then
+        DeleteScene(file)
+    end
+end)
+
+RegisterCommand('showsceneadmin', function(source)
+    if Admin(source) then
+        TriggerClientEvent('Scene_creator:openAdmin',source)
+    end
+end)
+
+RegisterNetEvent('Scene_creator:setSceneData', function(file,data)
+    local src = source
+    if not Admin(src)then
+        SendChatError(src,'~r~You Do Not have Proper Permissions!')
+        return
+    end
+    local is = not SearchScenes(file)
+    if is then
+        SendChatError(src,'~r~Scene Is Not Loaded!')
+        return
+    end
+    for name,value in pairs(data) do
+        if name=='bucket'then
+            SetSceneBucket(file,tonumber(value)or 0)
+        end
     end
 end)

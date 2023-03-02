@@ -133,3 +133,54 @@
     font-size: 24px;
     color: white;
 }
+
+#admin {
+    position: relative;
+    top: 10vh;
+    left: 20vw;
+    height: calc(80vh - 50px);
+    width: calc(60vw - 50px);
+    background-color: rgb(23, 23, 23);
+    box-shadow: 0px 0px 23px 18px rgb(14, 14, 14);
+    display: grid;
+    grid-template-columns: 20% 25px calc(80% - 25px);
+    padding: 25px;
+    border-radius: 5px;
+}
+
+#admin>div {
+    width: 100%;
+    height: 100%;
+}
+
+#admin>.sidebar {
+    position: relative;
+    background-color: black;
+    width: 2.5px;
+    left: 12.5px;
+}
+
+#admin>div:first-child {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-seif;
+    font-weight: bold;
+    font-size: 24px;
+    color: white;
+    gap: 25px;
+    z-index: 2;
+}
+
+#admin>div:first-child>div {
+    transition: 100ms ease-in-out;
+}
+
+#admin>div:first-child>div:hover {
+    cursor: pointer;
+    color:rgba(199, 195, 195, 0.897);
+}

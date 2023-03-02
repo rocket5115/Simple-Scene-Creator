@@ -13,6 +13,14 @@
         <script type="text/javascript" defer src="./script.js"></script>
     </head>
     <body>
+        <container id="admin" style="display:none">
+            <div id="sidebar">
+                <div id="AD_VS" onclick="ManageAdmin(this)">View Scenes</div>
+                <div id="AD_MF" onclick="ManageAdmin(this)">Manage Files</div>
+            </div>
+            <div class="sidebar"></div>
+            <div id="mainbar"></div>
+        </container>
         <container id="notifications">
             <div id="debug">
                 <div>Model: <span id="model"></span></div>

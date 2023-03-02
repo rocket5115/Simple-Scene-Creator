@@ -187,6 +187,11 @@ CreateThread(function()
 				roll=0.0
 				set=false
 				mMode=mMode_default
+				if spd > 100 then
+					spd=1
+				elseif spd < 0 then
+					spd=0.05
+				end
 				Wait(200)
 			else
 				DisableControlAction(1,44,true)
@@ -957,5 +962,46 @@ CreateThread(function()
 			template={}
 		end
 		EntitySetAs={}
+	end)
+	RegisterNUICallback('admin', function(data)
+		if data.data then
+			if data.data == 'AD_VS' then
+				TriggerServerEvent('Scene_creator:loadFiles', false)
+			elseif data.data == 'AD_MF' then
+				TriggerServerEvent('Scene_creator:loadFiles', true)
+			end
+		end
+	end)
+	RegisterNetEvent('Scene_creator:loadFiles', function(data,is)
+		SendNUIMessage({
+			type="admin",
+			data=data,
+			is=is
+		})
+	end)
+	RegisterNUICallback('adminselected', function(data)
+		if data.command == 'remove_file'or data.command == 'see_content'then
+			TriggerServerEvent('Scene_creator:manageFile', data.command, data.file)
+		else
+			TriggerServerEvent('Scene_creator:manageScene', data.command, data.file)
+		end
+	end)
+	RegisterNUICallback('setscenedata', function(data)
+		TriggerServerEvent('Scene_creator:setSceneData', data.file, data.data)
+	end)
+	RegisterNetEvent('Scene_creator:manageFile', function(data)
+		SendNotification('Peds: '..data.Ped..'; Vehs: '..data.Veh..'; Objs: '..data.Obj..'; All: '..data.Ent)
+	end)
+	local admin = false
+	RegisterNetEvent('Scene_creator:openAdmin', function()
+		admin=not admin
+		SendNUIMessage({
+			type='showadmin',
+			show=admin
+		})
+		SetNuiFocus(admin,admin)
+	end)
+	RegisterNUIListener('nuioff', function()
+		admin=false
 	end)
 end)

@@ -223,3 +223,82 @@ html {
     cursor: pointer;
     color: rgb(121, 121, 121);
 }
+
+.sidebar-class {
+    position: relative;
+    display: grid;
+    color: white;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgb(121, 121, 121);
+}
+
+.sidebar-class:has(.sc1) {
+    grid-template-columns: 50% 25% 25%;
+}
+
+.sidebar-class:has(.sc2) {
+    grid-template-columns: 20% 20% 20% 20% 20%;
+}
+
+.sidebar-class>button {
+    position: relative;
+    width: 80%;
+    left: 10%;
+    background-color: transparent;
+    outline: none;
+    border: 0px;
+    color: rgb(192, 187, 187);
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    transition: 150ms ease-in-out;
+    z-index: 2;
+}
+
+.sidebar-class>button:hover {
+    color:rgb(58, 68, 212);
+    cursor: pointer;
+}
+
+.sidebar-class>*>.see-more {
+    position: absolute;
+    width: auto;
+    height: auto;
+    display: grid;
+    grid-auto-flow: row;
+    background-color: rgb(42, 42, 42);
+    padding: 5px;
+    left:100%;
+    top: -50%;
+}
+
+.sidebar-class>*>.see-more>div {
+    position: relative;
+    width: auto;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 5px;
+}
+
+.input {
+    background-color: rgb(104, 104, 104);
+    border: 0px;
+    outline: none;
+    color: rgb(192, 187, 187) !important;
+}
+
+.input:hover {
+    color: rgb(192, 187, 187);
+    cursor: default;
+}
+
+.sidebar-class>*>.see-more {
+    color: rgb(192, 187, 187);
+}
+
+.sidebar-class>*>.see-more:hover {
+    color: rgb(192, 187, 187);
+}

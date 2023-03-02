@@ -2,6 +2,11 @@ const post = (cb,data) => {
     $.post('https://'+GetParentResourceName()+'/'+cb,data?JSON.stringify(data):"{}");
 };
 
+const AvailableMessages = {};
+const RegisterMessage = (name,cb) => {
+    AvailableMessages[name]=cb;
+};
+
 const main = document.getElementById('main');
 const grid = document.getElementById('grid');
 const form = document.getElementById('form');
@@ -56,6 +61,10 @@ window.addEventListener('message', function (event) {
                 sp.innerHTML='';
             };
         });
+    }else {
+        if(AvailableMessages[data.type]){
+            AvailableMessages[data.type](data);
+        };
     };
 });
 
@@ -71,6 +80,7 @@ function TrySubmitForm() {
 
 window.addEventListener('keydown', function (event) {
     if(event.key==='Escape'){
+        admin.style.display='none';
         if(!LastOption&&!Settings&&template.style.display=='none'){
             post('nuioff');
         } else if(LastOption) {
@@ -162,4 +172,94 @@ function SaveSettings(e) {
 
 function TempClicked(e) {
     post('TempSelected',{id:e.id});
+};
+
+const admin = document.getElementById('admin');
+const sidedata = document.getElementById('mainbar');
+
+function ManageAdmin(e) {
+    post('admin',{
+        data:e.id
+    });
+};
+
+RegisterMessage('showadmin', function(data){
+    if(data.show){
+        admin.style.display='grid';
+    }else {
+        admin.style.display='none';
+    };
+});
+
+RegisterMessage('admin', function(data){
+    if(data.is){
+        sidedata.innerHTML="";
+        let temp = `<div class='sidebar-class' id="PMC">
+            <div class="sidebar-title sc1">CMP</div>
+            <button class="remove_file" onclick="OnAdminClick(this)" type="button">Remove File</button>
+            <button class="see_content" onclick="OnAdminClick(this)" type="button">See Content</button>
+        </div>`;
+        let res = "";
+        data.data.forEach(el=> {
+            res+=temp.replace('PMC',el).replace('CMP',el);
+        });
+        sidedata.innerHTML=res;
+    }else {
+        sidedata.innerHTML="";
+        let temp = `<div class='sidebar-class' id="PMC">
+            <div class="sidebar-title sc2">CMP</div>
+            <button class="load_scene" onclick="OnAdminClick(this)" type="button">Load Scene</button>
+            <button class="go_to" onclick="OnAdminClick(this)" type="button">Go To Scene</button>
+            <button class="unload_scene" onclick="OnAdminClick(this)" type="button">Unload Scene</button>
+            <button class="more" onclick="SeeMore(this)" type="button">More
+                <div style="display:none" class="see-more">
+                    <div><label for="bucket">Dimension:</label><input class="input" name="bucket" type="number" min="0" max="100"></div>
+                    <div onclick="SubmitForm(this)">Save</div>
+                </div>
+            </button>
+        </div>`;
+        let res = "";
+        data.data.forEach(el=> {
+            res+=temp.replace('PMC',el.name).replace('CMP',(el.temp&&('[TEMP] '+el.name.replace('TEMP',''))||'[SCENE] '+el.name));
+        });
+        sidedata.innerHTML=res;
+    };
+});
+
+let isopen = null;
+
+function OnAdminClick(e) {
+    let scene = e.parentNode.id;
+    let id = e.className;
+    post('adminselected',{
+        command: id,
+        file: scene
+    })
+};
+
+function SeeMore(e) {
+    if(!isopen){
+        let form = e.querySelector('.see-more');
+        form.style.display = 'grid';
+        isopen=form;
+    };
+};
+
+function SubmitForm(e) {
+    if(isopen){
+        isopen.style.display = 'none';
+        setTimeout(()=>{
+            isopen=null;
+        },0);
+    };
+    e.parentNode.style.display = 'none';
+    let retval = {};
+    let input = e.parentNode.querySelectorAll('.input')
+    for(let i=0;i<input.length;i++){
+        retval[input[i].name]=input[i].value;
+    };
+    post('setscenedata',{
+        file: e.parentNode.parentNode.parentNode.id,
+        data: retval
+    })
 };
