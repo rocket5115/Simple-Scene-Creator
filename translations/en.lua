@@ -16,7 +16,6 @@ Translation['en'] = {
     ['all_networked'] = "All Entities Networked By Default",
     ['move_all_by_offset'] = "Move Entities With Offset By Default",
     ['auto_save'] = "Auto Save After Any Major Change",
-    ['compress_data'] = "Compress Data To Save Space (Not Recommended)",
     ['temp_manage'] = "Manage Project",
     ['temp_manage_description'] = "(to be reworked)"
 }
