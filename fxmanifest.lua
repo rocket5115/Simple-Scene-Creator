@@ -18,7 +18,8 @@ client_scripts {
 server_scripts {
     'serverconfig.lua',
     'admin.lua',
-    'server.lua'
+    'server.lua',
+    'commands.lua'
 }
 
 ui_page 'html/index.html'
@@ -27,6 +28,5 @@ files {
     'html/index.html',
     'html/styles.css',
     'html/template.css',
-    'html/compress.js',
     'html/script.js'
 }

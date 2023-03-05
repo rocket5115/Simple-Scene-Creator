@@ -119,3 +119,34 @@ function SendNotification(data)
         data=data
     })
 end
+
+local commands = {}
+
+function RegisterKeybind(command,keys)
+    commands[command] = {}
+    for i=1,#keys do
+        commands[command][keys[i]]=false
+        RegisterCommand('KeyPressed'..keys[i],function()
+            print(keys[i])
+            for k,v in pairs(commands)do
+                if not v[keys[i]]then
+                    v[keys[i]]=true
+                    local ret = true
+                    for k,v in pairs(v)do
+                        if not v then
+                            ret=false
+                            break
+                        end
+                    end
+                    if ret then
+                        ExecuteCommand(k)
+                    end
+                    Citizen.SetTimeout(200,function()
+                        v[keys[i]]=false
+                    end)
+                end
+            end
+        end)
+        RegisterKeyMapping('KeyPressed'..keys[i],'Key: '..keys[i],'keyboard',keys[i])
+    end
+end

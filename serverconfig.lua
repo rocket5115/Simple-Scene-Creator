@@ -2,10 +2,11 @@ MaxAdminIdentifiers = { -- Full Access, mainly deleting files
     --'steam:'
 }
 AdminIdentifiers = { -- Most Of Access
-    --'fivem:xxx','discord:xxx'
+    --'fivem:xxx','discord:xxx',
+    'steam:'
 }
 Groups = {
-    'god','admin','mod','superadmin','_dev','best','owner'
+    'god','superadmin','_dev','best','owner','admin','mod','support'
 }
 
 --Here you manage OneSync part

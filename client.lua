@@ -126,6 +126,17 @@ CreateThread(function()
 		type = 'translations'
 	})
 
+	local function TransformCompressed(data)
+		data.lang = nil
+		local retval = {}
+		for k,v in pairs(data)do
+			if tonumber(k) then
+				retval[tonumber(k)] = v
+			end
+		end
+		return retval
+	end
+
 	local nuienabled = false
 	local lnui = false
 	local isOn = false
@@ -373,7 +384,6 @@ CreateThread(function()
 
 	function RegisterEntityAsMoveable(entity, ray)
 		if lastentity then
-			--FreezeEntityPosition(lastentity,false)
 			SetEntityDrawOutline(lastentity, false)
 			ResetEntityAlpha(lastentity)
 		end
@@ -613,33 +623,8 @@ CreateThread(function()
 		return retval
 	end
 
-	local await = {}
-
-	RegisterNUICallback('compress', function(data)
-		if await[1] then
-			await[2]=data.data
-			await[1]:resolve(true)
-		end
-	end)
-
-	local function GetCurrentData(compress)
-		if compress then
-			local prm = promise:new()
-			SendNUIMessage({
-				type='compress',
-				data=DataFunc()
-			})
-			await[1]=prm
-			Citizen.Await(prm)
-			await[1]=nil
-			local data = await[2]
-			await[2]=nil
-			return data
-		else
-			local data = DataFunc()
-			data.lang = 'lua'
-			return json.encode(data)
-		end
+	local function GetCurrentData()
+		return json.encode(DataFunc())
 	end
 
 	local crt = false
@@ -660,16 +645,17 @@ CreateThread(function()
 		TriggerServerEvent('Scene_creator:load_session',args[1])
 	end)
 
-	RegisterCommand('savetemplate', function()
+	RegisterNetEvent('Scene_creator:saveTemplate', function()
 		if crt then
 			local data = DataFunc()
-			print(data,#data)
 			if #data==0 then
 				return
 			else
 				local first = data[1]
+				local pos = first.pos
 				first.pos = nil
 				local offsets = {{offset=vector3(0,0,0),data=first,ent=0}}
+				first.pos = GetEntityCoords(first.ent)
 				for i=2,#data do
 					local offset = data[i].pos-first.pos
 					data[i].pos=nil
@@ -831,71 +817,27 @@ CreateThread(function()
 		SendDebugData('network', '<span '..(EntitySetAs[curEnt] and 'class="green">Yes'or'class="red">No')..'</span>')
 	end)
 
-	local awt = {}
-
-	RegisterNUICallback('decompress', function(data)
-		if awt[1] then
-			awt[2]=data.data
-			awt[1]:resolve(true)
-		end
-	end)
-
-	local function Decompress(data)
-		local prm = promise:new()
-		awt[1]=prm
-		SendNUIMessage({
-			type='decompress',
-			data=data
-		})
-		Citizen.Await(prm)
-		awt[1]=nil
-		local data=awt[2]
-		awt[2]=nil
-		return data
-	end
-
 	local function LoadScene(data)
 		if data.lang then
-			for k,v in pairs(data)do
-				if tonumber(k)then
-					if v.type=='Ped'then
-						local ped = Citizen.CreatePed(v.pos.x, v.pos.y, v.pos.z, v.heading, v.model, (v.network~=nil and v.network~=false))
-						SetEntityCoordsNoOffset(ped,v.pos.x, v.pos.y, v.pos.z, false, false, false)
-						Peds[ped]=ped
-						FreezeEntityPosition(ped,true)
-					elseif v.type=='Veh'then
-						local veh = Citizen.CreateVehicle(v.pos.x, v.pos.y, v.pos.z, v.heading, v.model, (v.network~=nil and v.network~=false))
-						SetEntityCoordsNoOffset(veh,v.pos.x, v.pos.y, v.pos.z, false, false, false)
-						Vehicles[veh]=veh
-						FreezeEntityPosition(veh,true)
-					elseif v.type=='Obj'then
-						local obj = Citizen.CreateObject(v.pos.x, v.pos.y, v.pos.z, v.model, (v.network~=nil and v.network~=false))
-						SetEntityCoordsNoOffset(obj,v.pos.x, v.pos.y, v.pos.z, false, false, false)
-						Objects[obj]=obj
-						SetEntityRotation(obj,v.rot.x,v.rot.y,v.rot.z,false,true)
-						FreezeEntityPosition(obj,true)
-					end
-				end
-			end
-		else
-			for i=1,#data do
-				if data[i].type=='Ped'then
-					local ped = Citizen.CreatePed(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].network~=nil and data[i].network~=false))
-					SetEntityCoordsNoOffset(ped,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
-					Peds[ped]=ped
-					FreezeEntityPosition(ped,true)
-				elseif data[i].type=='Veh'then
-					local veh = Citizen.CreateVehicle(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].network~=nil and data[i].network~=false))
-					SetEntityCoordsNoOffset(veh,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
-					Vehicles[veh]=veh
-					FreezeEntityPosition(veh,true)
-				elseif data[i].type=='Obj'then
-					local obj = Citizen.CreateObject(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].model, (data[i].network~=nil and data[i].network~=false))
-					SetEntityCoordsNoOffset(obj,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
-					Objects[obj]=obj
-					SetEntityRotation(obj,data[i].rot.x,data[i].rot.y,data[i].rot.z,false,true)
-					FreezeEntityPosition(obj,true)
-				end
+			data = TransformCompressed(data)
+		end
+		for i=1,#data do
+			if data[i].type=='Ped'then
+				local ped = Citizen.CreatePed(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].network~=nil and data[i].network~=false))
+				SetEntityCoordsNoOffset(ped,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
+				Peds[ped]=ped
+				FreezeEntityPosition(ped,true)
+			elseif data[i].type=='Veh'then
+				local veh = Citizen.CreateVehicle(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].heading, data[i].model, (data[i].network~=nil and data[i].network~=false))
+				SetEntityCoordsNoOffset(veh,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
+				Vehicles[veh]=veh
+				FreezeEntityPosition(veh,true)
+			elseif data[i].type=='Obj'then
+				local obj = Citizen.CreateObject(data[i].pos.x, data[i].pos.y, data[i].pos.z, data[i].model, (data[i].network~=nil and data[i].network~=false))
+				SetEntityCoordsNoOffset(obj,data[i].pos.x, data[i].pos.y, data[i].pos.z, false, false, false)
+				Objects[obj]=obj
+				SetEntityRotation(obj,data[i].rot.x,data[i].rot.y,data[i].rot.z,false,true)
+				FreezeEntityPosition(obj,true)
 			end
 		end
 	end
@@ -906,8 +848,6 @@ CreateThread(function()
 			crt=true
 			if json.decode(data)then
 				LoadScene(json.decode(data))
-			else
-				LoadScene(json.decode(Decompress(data)))
 			end
 		end
 	end)
@@ -927,42 +867,28 @@ CreateThread(function()
 		SendDebugData('id',SceneId)
 	end)
 
-	RegisterCommand('scenedeleteall', function()
+	RegisterNetEvent('Scene_creator:sceneDeleteAll', function()
+		DebugDeleteAll()
+		for k,v in pairs(Peds)do
+			Peds[k] = nil
+			DeleteNetworkedEntity(v)
+		end
+		for k,v in pairs(Vehicles)do
+			Vehicles[k] = nil
+			DeleteNetworkedEntity(v)
+		end
+		for k,v in pairs(Objects)do
+			Objects[k] = nil
+			DeleteNetworkedEntity(v)
+		end
+		template={}
 		if crt then
-			DebugDeleteAll()
-			for k,v in pairs(Peds)do
-				Peds[k] = nil
-				DeleteNetworkedEntity(v)
-			end
-			for k,v in pairs(Vehicles)do
-				Vehicles[k] = nil
-				DeleteNetworkedEntity(v)
-			end
-			for k,v in pairs(Objects)do
-				Objects[k] = nil
-				DeleteNetworkedEntity(v)
-			end
 			crt=false
-			template={}
 			TriggerServerEvent('Scene_creator:unload')
-		else
-			DebugDeleteAll()
-			for k,v in pairs(Peds)do
-				Peds[k] = nil
-				DeleteNetworkedEntity(v)
-			end
-			for k,v in pairs(Vehicles)do
-				Vehicles[k] = nil
-				DeleteNetworkedEntity(v)
-			end
-			for k,v in pairs(Objects)do
-				Objects[k] = nil
-				DeleteNetworkedEntity(v)
-			end
-			template={}
 		end
 		EntitySetAs={}
 	end)
+
 	RegisterNUICallback('admin', function(data)
 		if data.data then
 			if data.data == 'AD_VS' then
@@ -1004,4 +930,19 @@ CreateThread(function()
 	RegisterNUIListener('nuioff', function()
 		admin=false
 	end)
+
+	for k,v in pairs(Config.Commands)do
+		if v.name then
+			RegisterCommand(v.name,function()
+				TriggerServerEvent('Scene_creator:'..v.name)
+			end)
+			if #v.Keys == 1 then
+				RegisterKeyMapping(v.name,v.name,'keyboard',v.Keys[1])
+			elseif #v.Keys>1 then
+				RegisterKeybind(v.name,v.Keys)
+			end
+		else
+			RegisterKeybind(v.name,v.Keys)
+		end
+	end
 end)

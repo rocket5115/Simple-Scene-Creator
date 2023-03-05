@@ -31,10 +31,6 @@ window.addEventListener('message', function (event) {
         translations.forEach(elem=>{
             elem.innerHTML=data.data[elem.innerHTML]?data.data[elem.innerHTML]:`Translation [${data.lang}] Not Found`;
         });
-    }else if(data.type==='compress'){
-        post('compress',{data:Citizen.Compress(JSON.stringify(data.data))});
-    }else if(data.type==='decompress'){
-        post('decompress',{data:Citizen.Decompress(data.data)});
     }else if(data.type==='addnotif'){
         notifications.innerHTML = data.data;
         setTimeout(()=>{
@@ -205,6 +201,7 @@ RegisterMessage('admin', function(data){
         });
         sidedata.innerHTML=res;
     }else {
+        
         sidedata.innerHTML="";
         let temp = `<div class='sidebar-class' id="PMC">
             <div class="sidebar-title sc2">CMP</div>
@@ -254,10 +251,11 @@ function SubmitAdminForm(e) {
     };
     e.parentNode.style.display = 'none';
     let retval = {};
-    let input = e.parentNode.querySelectorAll('.input')
+    let input = e.parentNode.querySelectorAll('.input');
     for(let i=0;i<input.length;i++){
         retval[input[i].name]=input[i].value;
     };
+    grid
     post('setscenedata',{
         file: e.parentNode.parentNode.parentNode.id,
         data: retval

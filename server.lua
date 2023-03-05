@@ -1,6 +1,6 @@
-local files = {}
-local allow = {}
-local resource = GetCurrentResourceName()
+files = {}
+allow = {}
+resource = GetCurrentResourceName()
 function scandir(directory)
     local i, t = 0, {}
     local pfile = io.popen('dir "'..directory..'" /b')
@@ -12,10 +12,9 @@ function scandir(directory)
     return t
 end
 
-RegisterCommand('allowscene', function(source)
-    allow[source] = Admin(source)
-    TriggerClientEvent('Scene_creator:allow',source,allow[source])
-end)
+local function scdir(dir)
+    for dir in io.popen('ls -pa '..dir..' | grep -v /'):lines() do print(dir) end
+end
 
 RegisterNetEvent('Scene_creator:requestAdmin', function()
     local src = source
@@ -43,7 +42,7 @@ RegisterNetEvent('Scene_creator:create_session', function(arg)
     end
 end)
 
-RegisterNetEvent('Scene_creator:save_session', function(data,compressed)
+RegisterNetEvent('Scene_creator:save_session', function(data)
     local src = source
     if not Admin(src)then
         SendChatError(src,'~r~You Do Not have Proper Permissions!')
@@ -264,24 +263,6 @@ function DeleteScene(id)
     end
 end
 
-RegisterCommand('removescenebucket', function(source,args)
-    if source == 0 then
-        DeleteScene(args[1])
-    end
-end)
-
-RegisterCommand('setscenebucket', function(source,args)
-    if source==0 then
-        SetSceneBucket(args[1],args[2])
-    end
-end)
-
-RegisterCommand('loadscenebucket', function(source,args)
-    if source==0 then
-        LoadSceneBucket(args[1])
-    end
-end)
-
 function SetSceneBucket(scene,id)
     if scene and id and loadedScenes[scene] and tonumber(id) then
         id = tonumber(id)
@@ -441,12 +422,6 @@ RegisterNetEvent('Scene_creator:manageScene', function(cmd,file)
         SetEntityCoords(GetPlayerPed(src),first_place.pos.x, first_place.pos.y, first_place.pos.z+2.0,false,false)
     elseif cmd=='unload_scene' then
         DeleteScene(file)
-    end
-end)
-
-RegisterCommand('showsceneadmin', function(source)
-    if Admin(source) then
-        TriggerClientEvent('Scene_creator:openAdmin',source)
     end
 end)
 
