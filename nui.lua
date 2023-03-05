@@ -127,7 +127,6 @@ function RegisterKeybind(command,keys)
     for i=1,#keys do
         commands[command][keys[i]]=false
         RegisterCommand('KeyPressed'..keys[i],function()
-            print(keys[i])
             for k,v in pairs(commands)do
                 if not v[keys[i]]then
                     v[keys[i]]=true
